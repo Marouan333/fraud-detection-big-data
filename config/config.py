@@ -18,11 +18,11 @@ IBM_AML_TRANS     = os.path.join(DATA_DIR, "ibm_aml", "HI-Small_Trans.csv")
 IBM_AML_ACCOUNTS  = os.path.join(DATA_DIR, "ibm_aml", "HI-Small_accounts.csv")
 
 # Delta Lake
-DELTA_PATH = os.path.join(BASE_DIR, "delta_lake")
+DELTA_PATH = os.environ.get("DELTA_PATH", os.path.join(BASE_DIR, "delta_lake"))
 
 # Kafka
-KAFKA_BROKER = "localhost:9092"
-KAFKA_TOPIC  = "transactions"
+KAFKA_BROKER = os.environ.get("KAFKA_BROKER", "localhost:9092")
+KAFKA_TOPIC  = os.environ.get("KAFKA_TOPIC", "transactions")
 
 # Spark
 APP_NAME     = "FraudDetection"
