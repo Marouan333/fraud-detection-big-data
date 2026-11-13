@@ -1,0 +1,20 @@
+# Datasets (1.6 Go) : a telecharger depuis Kaggle, voir README
+data/
+
+# Resultats generes par Spark (recrees en relancant les scripts)
+delta_lake/
+spark-warehouse/
+metastore_db/
+derby.log
+checkpoint*/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Secrets
+.env
+kaggle.json

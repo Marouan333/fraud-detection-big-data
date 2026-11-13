@@ -1,0 +1,65 @@
+{
+  "title": "Fraud Detection - Big Data",
+  "uid": "fraud-detection",
+  "schemaVersion": 30,
+  "panels": [
+    {
+      "id": 1, "gridPos": {"x":0,"y":0,"w":6,"h":4}, "type": "stat",
+      "title": "Transactions envoyées (Producer)",
+      "targets": [{"expr": "producer_transactions_total", "legendFormat": "Total"}],
+      "options": {"colorMode": "background", "graphMode": "area"}
+    },
+    {
+      "id": 2, "gridPos": {"x":6,"y":0,"w":6,"h":4}, "type": "stat",
+      "title": "Fraudes envoyées (Producer)",
+      "targets": [{"expr": "producer_fraud_total", "legendFormat": "Fraudes"}],
+      "options": {"colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "red"}}}
+    },
+    {
+      "id": 3, "gridPos": {"x":12,"y":0,"w":6,"h":4}, "type": "stat",
+      "title": "Transactions traitées (Consumer)",
+      "targets": [{"expr": "consumer_transactions_total", "legendFormat": "Ingérées"}],
+      "options": {"colorMode": "background", "graphMode": "area"}
+    },
+    {
+      "id": 4, "gridPos": {"x":18,"y":0,"w":6,"h":4}, "type": "stat",
+      "title": "Fraudes détectées (Consumer)",
+      "targets": [{"expr": "consumer_fraud_detected_total", "legendFormat": "Détectées"}],
+      "options": {"colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "orange"}}}
+    },
+    {
+      "id": 5, "gridPos": {"x":0,"y":4,"w":12,"h":8}, "type": "timeseries",
+      "title": "Débit transactions (Producer vs Consumer)",
+      "targets": [
+        {"expr": "rate(producer_transactions_total[1m])*60", "legendFormat": "Producer tx/min"},
+        {"expr": "rate(consumer_transactions_total[1m])*60", "legendFormat": "Consumer tx/min"}
+      ]
+    },
+    {
+      "id": 6, "gridPos": {"x":12,"y":4,"w":12,"h":8}, "type": "timeseries",
+      "title": "Fraudes détectées en temps réel",
+      "targets": [
+        {"expr": "rate(producer_fraud_total[1m])*60", "legendFormat": "Fraudes producer/min"},
+        {"expr": "rate(consumer_fraud_detected_total[1m])*60", "legendFormat": "Fraudes consumer/min"}
+      ]
+    },
+    {
+      "id": 7, "gridPos": {"x":0,"y":12,"w":8,"h":6}, "type": "gauge",
+      "title": "Taux de fraude (%)",
+      "targets": [{"expr": "producer_fraud_total / producer_transactions_total * 100"}],
+      "fieldConfig": {"defaults": {"min": 0, "max": 5, "unit": "percent",
+        "thresholds": {"steps": [
+          {"color":"green","value":0},{"color":"yellow","value":0.5},{"color":"red","value":1}
+        ]}}}
+    },
+    {
+      "id": 8, "gridPos": {"x":8,"y":12,"w":8,"h":6}, "type": "stat",
+      "title": "Batches Spark traités",
+      "targets": [{"expr": "consumer_batches_total", "legendFormat": "Batches"}]
+    }
+  ],
+  "time": {"from": "now-30m", "to": "now"},
+  "refresh": "5s"
+}

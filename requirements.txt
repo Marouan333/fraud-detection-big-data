@@ -1,0 +1,6 @@
+kafka-python==2.0.2
+pyspark==3.5.0
+delta-spark==3.0.0
+pandas==2.1.4
+prometheus-client==0.19.0
+# graphframes installé via JAR Spark (voir GRAPHFRAMES_JAR dans config.py)
