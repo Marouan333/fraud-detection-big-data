@@ -18,3 +18,5 @@ venv/
 # Secrets
 .env
 kaggle.json
+logs/
+delta_lake_backup/

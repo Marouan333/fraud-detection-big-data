@@ -52,6 +52,7 @@ data/ibm_aml/HI-Small_accounts.csv
 
 ```
 config/config.py              Chemins, Kafka, ports Prometheus
+config/kafka_utils.py         Creation du topic Kafka s'il n'existe pas (demarrage dans n'importe quel ordre)
 config/spark_session.py       Session Spark unique (memoire, AQE, Delta, JAR) partagee par tous les jobs
 producer/kafka_producer.py    Envoie PaySim dans le topic Kafka "transactions"
 streaming/spark_consumer.py   Consomme Kafka, ecrit dans Delta Lake (exactly-once), expose les metriques
@@ -155,9 +156,10 @@ Le detail et les graphiques se trouvent dans `notebooks/02_resultats_executed.ip
 
 - **Exactly-once en streaming.** Le consommateur ecrit un checkpoint (offsets Kafka deja traites) et des ecritures Delta idempotentes (`txnAppId` / `txnVersion`) : un redemarrage ou un batch rejoue par Spark ne cree pas de doublons. Sans checkpoint, chaque redemarrage relisait le topic depuis le debut, ce qui avait produit 8,1 M de lignes pour 6,4 M de transactions lors des premiers tests.
 - **Un seul calcul par micro-batch.** Le batch est mis en cache avant les deux comptages et les deux ecritures : Kafka est lu et le JSON parse une seule fois au lieu de quatre.
+- **Verifie sur le flux complet.** Run de bout en bout : 6 362 620 messages produits, 6 362 620 lignes dans Delta Lake, 0 doublon, 8 213 fraudes.
 - **Verifie par un test.** 50 000 messages consommes, consommateur tue puis relance : 50 000 lignes, aucune en double. Puis 20 000 nouveaux messages : la table passe a 70 000 lignes, le consommateur reprend exactement a l'offset 50 000 (sans checkpoint il aurait relu le topic et ecrit 120 000 lignes).
 - **Contre-pression.** `maxOffsetsPerTrigger` borne la taille d'un batch et `minPartitions` repartit la lecture du topic sur 8 taches.
-- **Producteur.** Lecture par blocs de 100 000 lignes et des 6 colonnes utiles seulement (memoire bornee), envoi par lots compresses (`linger_ms`, `batch_size`, gzip), cle de partition = compte emetteur, `tx_id` unique par transaction, compteur d'erreurs d'envoi expose a Prometheus. Debit mesure : environ 5 100 transactions/s contre 100 a 170 avec `iterrows()`, soit le dataset complet en une vingtaine de minutes au lieu de plusieurs heures.
+- **Producteur.** Lecture par blocs de 100 000 lignes et des 6 colonnes utiles seulement (memoire bornee), envoi par lots compresses (`linger_ms`, `batch_size`, gzip), cle de partition = compte emetteur, `tx_id` unique par transaction, compteur d'erreurs d'envoi expose a Prometheus. Debit mesure : 5 100 transactions/s au debut, 3 600 en moyenne sur le flux complet (1 765 s pour 6 362 620 transactions, avec Spark qui tourne en parallele sur la meme machine) contre 100 a 170 avec `iterrows()`, soit le dataset complet en une trentaine de minutes au lieu de plusieurs heures.
 - **Schema explicite.** Le CSV IBM AML (5 M de lignes) est lu avec un schema declare au lieu de `inferSchema`, ce qui evite une passe complete sur le fichier et nomme proprement les deux colonnes `Account` dupliquees.
 - **Session Spark centralisee.** Un seul module configure memoire, Adaptive Query Execution, Delta et les JAR pour les jobs batch, streaming et les notebooks.
 - **Infrastructure fiable.** Health checks Docker et redemarrage automatique : sans eux, Kafka s'arretait au demarrage s'il n'atteignait pas Zookeeper a temps. Topic, broker et chemin Delta sont surchargeables par variables d'environnement (`KAFKA_TOPIC`, `KAFKA_BROKER`, `DELTA_PATH`) pour tester sans toucher aux donnees.

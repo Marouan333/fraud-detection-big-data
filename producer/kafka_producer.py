@@ -8,6 +8,7 @@ import pandas as pd
 from kafka import KafkaProducer
 from prometheus_client import start_http_server, Counter
 from config.config import KAFKA_BROKER, KAFKA_TOPIC, PAYSIM_PATH, PROMETHEUS_PORT_PRODUCER
+from config.kafka_utils import ensure_topic
 
 transactions_sent = Counter('producer_transactions_total', 'Transactions envoyées à Kafka')
 fraud_sent        = Counter('producer_fraud_total', 'Transactions frauduleuses envoyées')
@@ -78,6 +79,7 @@ if __name__ == "__main__":
     parser.add_argument("--limit", type=int, default=None, help="nombre max de transactions")
     args = parser.parse_args()
 
+    ensure_topic()
     start_http_server(PROMETHEUS_PORT_PRODUCER)
     print(f"Métriques exposées sur le port {PROMETHEUS_PORT_PRODUCER}")
     stream_paysim(create_producer(), args.delay, args.limit)

@@ -7,6 +7,7 @@ from pyspark.sql.types import StructType, StructField, LongType, IntegerType, St
 from prometheus_client import start_http_server, Counter
 from config.config import KAFKA_BROKER, KAFKA_TOPIC, DELTA_PATH, PROMETHEUS_PORT_CONSUMER
 from config.spark_session import create_spark, KAFKA_JAR
+from config.kafka_utils import ensure_topic
 
 batches_processed      = Counter('consumer_batches_total', 'Batches traités')
 transactions_processed = Counter('consumer_transactions_total', 'Transactions ingérées')
@@ -79,6 +80,7 @@ def start_consumer(spark):
 
 
 if __name__ == "__main__":
+    ensure_topic()
     start_http_server(PROMETHEUS_PORT_CONSUMER)
     print(f"Métriques exposées sur le port {PROMETHEUS_PORT_CONSUMER}", flush=True)
     start_consumer(create_spark("_stream", (KAFKA_JAR,)))
