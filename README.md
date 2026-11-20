@@ -48,6 +48,10 @@ data/ibm_aml/HI-Small_Trans.csv
 data/ibm_aml/HI-Small_accounts.csv
 ```
 
+## Rapport
+
+Le rapport complet (10 pages, source LaTeX incluse) est dans [`report/rapport.pdf`](report/rapport.pdf).
+
 ## Structure du projet
 
 ```
@@ -64,6 +68,7 @@ monitoring/                   Configuration Prometheus et tableau de bord Grafan
 notebooks/01_exploration      Analyse exploratoire des deux datasets
 notebooks/02_resultats        Lecture et visualisation des resultats Delta Lake
 docker-compose.yml            Kafka, Zookeeper, Prometheus, Grafana
+report/                       Rapport de projet (PDF et source LaTeX)
 ```
 
 ## Installation
@@ -122,8 +127,8 @@ python maintenance/optimize_delta.py
 | Indicateur | Valeur |
 |---|---|
 | Seuil (percentile 99 du score) | 6,21 |
-| Comptes suspects | 5 192 sur 515 088 (1 %) |
-| Dont reellement impliques en blanchiment | 267, soit une precision de 5,14 % |
+| Comptes suspects | 5 189 sur 515 088 (1 %) |
+| Dont reellement impliques en blanchiment | 267, soit une precision de 5,15 % |
 | Taux de base (tirage aleatoire) | 1,23 % |
 | Lift | x4,2 |
 | Rappel | 4,2 % des 6 357 comptes de blanchiment |
